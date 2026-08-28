@@ -39,10 +39,14 @@ const addSection = ({ label, value }: D3Section): void => {
       `"${label}" has invalid value: ${value}. Negative values are not allowed in pie charts. All slice values must be >= 0.`
     );
   }
-  if (!sections.has(label)) {
-    sections.set(label, value);
-    log.debug(`added new section: ${label}, with value: ${value}`);
+  if (sections.has(label)) {
+    log.debug(
+      `ignoring duplicate section: ${label}, keeping existing value: ${sections.get(label)}`
+    );
+    return;
   }
+  sections.set(label, value);
+  log.debug(`added new section: ${label}, with value: ${value}`);
 };
 
 const getSections = (): Sections => sections;
