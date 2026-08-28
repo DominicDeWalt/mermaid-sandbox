@@ -332,6 +332,29 @@ export class MindmapDB {
   }
 
   /**
+   * Prepare the mindmap tree for layout: assign section numbers, then convert the
+   * tree into the flat node and edge arrays the layout algorithms expect.
+   * @param root - The root node of the mindmap
+   * @returns The flattened nodes and the edges generated from the tree
+   */
+  public prepareLayoutTree(root: MindmapNode): {
+    nodes: MindmapLayoutNode[];
+    edges: MindmapLayoutEdge[];
+  } {
+    // Assign section numbers to all nodes based on their position relative to root
+    this.assignSections(root);
+
+    // Convert tree structure to flat arrays
+    const nodes: MindmapLayoutNode[] = [];
+    const edges: MindmapLayoutEdge[] = [];
+
+    this.flattenNodes(root, nodes);
+    this.generateEdges(root, edges);
+
+    return { nodes, edges };
+  }
+
+  /**
    * Get structured data for layout algorithms
    * Following the pattern established by ER diagrams
    * @returns Structured data containing nodes, edges, and config
@@ -357,15 +380,7 @@ export class MindmapDB {
     }
     log.debug('getData: mindmapRoot', mindmapRoot, config);
 
-    // Assign section numbers to all nodes based on their position relative to root
-    this.assignSections(mindmapRoot);
-
-    // Convert tree structure to flat arrays
-    const processedNodes: MindmapLayoutNode[] = [];
-    const processedEdges: MindmapLayoutEdge[] = [];
-
-    this.flattenNodes(mindmapRoot, processedNodes);
-    this.generateEdges(mindmapRoot, processedEdges);
+    const { nodes: processedNodes, edges: processedEdges } = this.prepareLayoutTree(mindmapRoot);
 
     log.debug(
       `getData: processed ${processedNodes.length} nodes and ${processedEdges.length} edges`
